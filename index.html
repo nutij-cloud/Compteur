@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avant nos retrouvailles ❤️</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 35px 25px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 28px;
+        }
+        .countdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .time-box {
+            background: rgba(255, 255, 255, 0.22);
+            padding: 15px 5px;
+            border-radius: 16px;
+        }
+        .number {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.85;
+            margin-top: 4px;
+            display: block;
+        }
+        .message {
+            font-size: 1rem;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.12);
+            padding: 15px;
+            border-radius: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Bientôt ensemble ❤️</h1>
+        <p class="subtitle">Vendredi 27 novembre à 20h00</p>
+
+        <div class="countdown" id="countdown">
+            <div class="time-box">
+                <span class="number" id="days">0</span>
+                <span class="label">Jours</span>
+            </div>
+            <div class="time-box">
+                <span class="number" id="hours">00</span>
+                <span class="label">Heures</span>
+            </div>
+            <div class="time-box">
+                <span class="number" id="minutes">00</span>
+                <span class="label">Min</span>
+            </div>
+            <div class="time-box">
+                <span class="number" id="seconds">00</span>
+                <span class="label">Sec</span>
+            </div>
+        </div>
+
+        <p class="message" id="status-msg">Courage, chaque seconde nous rapproche !</p>
+    </div>
+
+    <script>
+        // Date cible : Vendredi 27 novembre 2026 à 20:00:00 (heure locale)
+        const targetDate = new Date("2026-11-27T20:00:00").getTime();
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance <= 0) {
+                document.getElementById("countdown").style.display = "none";
+                document.getElementById("status-msg").innerHTML = "🎉 <strong>C'est l'heure ! On se retrouve enfin ❤️</strong>";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = days;
+            document.getElementById("hours").innerText = String(hours).padStart(2, '0');
+            document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
+            document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
+
+</body>
+</html>
