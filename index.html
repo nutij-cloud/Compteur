@@ -221,7 +221,7 @@
         <!-- Vue du compteur une fois débloqué -->
         <div id="counter-view">
             <h1>Bientôt ensemble ❤️</h1>
-            <p class="subtitle">Vendredi 27 novembre à 20h00</p>
+            <p class="subtitle">Vendredi 27 novembre à 20h00(à peut près ça dépend)</p>
 
             <div class="countdown" id="countdown">
                 <div class="time-box">
@@ -254,7 +254,7 @@
                 </div>
             </div>
 
-            <p class="message" id="status-msg">Courage, le plus gros est déjà derrière nous !</p>
+            <p class="message" id="status-msg">Courage, le plus gros est déjà derrière nous 😘</p>
         </div>
     </div>
 
@@ -271,7 +271,7 @@
             const selected = document.querySelector('input[name="relationDate"]:checked');
 
             if (!selected) {
-                errorMsg.innerText = "Coche une réponse d'abord 😉";
+                errorMsg.innerText = "Coche une réponse d'abord 🤨";
                 errorMsg.style.display = "block";
                 return;
             }
@@ -282,7 +282,7 @@
                 counterView.style.display = "block";
                 updateTimer();
             } else {
-                errorMsg.innerText = "Pas tout à fait, essaie une autre date !";
+                errorMsg.innerText = "Tu es sérieuse ?😒";
                 errorMsg.style.display = "block";
                 mainCard.classList.remove("shake");
                 void mainCard.offsetWidth;
