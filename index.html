@@ -283,7 +283,7 @@
 
             <p class="quiz-question">Quelle est la date de notre relation ?</p>
 
-            <form id="quiz-form">
+            <div id="quiz-form">
                 <div class="options-list">
                     <label class="option-item">
                         <input type="radio" name="relationDate" value="29 juillet 2025">
@@ -299,8 +299,8 @@
                     </label>
                 </div>
 
-                <button type="submit" class="btn-unlock">Valider</button>
-            </form>
+                <button type="button" id="unlock-btn" class="btn-unlock">Valider</button>
+            </div>
 
             <p class="error-msg" id="error-msg">Tu es sérieuse ?😒</p>
         </div>
@@ -345,181 +345,4 @@
             <!-- Barre 2 : Progression des 4 derniers jours -->
             <div class="progress-wrapper" id="progress-4d-wrapper">
                 <div class="progress-header">
-                    <span>Les 4 derniers jours</span>
-                    <span id="progress-4d-percent">0%</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill" id="progress-4d-fill">
-                        <span class="progress-heart">🔥</span>
-                    </div>
-                </div>
-            </div>
-
-            <p class="message" id="status-msg">Courage, le plus gros est déjà derrière nous 😘</p>
-
-            <button type="button" class="btn-snake" id="open-snake-btn">🐍 Passer le temps (Snake)</button>
-        </div>
-
-        <!-- Mini-jeu Snake -->
-        <div id="snake-view">
-            <h1>Snake ❤️</h1>
-            <p class="subtitle" style="margin-bottom: 12px;">Attrape les cœurs pour passer le temps !</p>
-
-            <div class="snake-header">
-                <span>Score : <span id="snake-score">0</span></span>
-                <span id="snake-status">En cours</span>
-            </div>
-
-            <canvas id="snake-canvas" width="280" height="280"></canvas>
-
-            <div class="snake-controls">
-                <div></div>
-                <button type="button" class="ctrl-btn" data-dir="UP">▲</button>
-                <div></div>
-                <button type="button" class="ctrl-btn" data-dir="LEFT">◀</button>
-                <button type="button" class="ctrl-btn" data-dir="DOWN">▼</button>
-                <button type="button" class="ctrl-btn" data-dir="RIGHT">▶</button>
-            </div>
-
-            <div class="snake-actions">
-                <button type="button" class="btn-small btn-restart" id="restart-snake-btn">Rejouer</button>
-                <button type="button" class="btn-small btn-back" id="close-snake-btn">← Compteur</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const CORRECT_ANSWER = "28 juillet 2024";
-        const quizForm = document.getElementById("quiz-form");
-        const errorMsg = document.getElementById("error-msg");
-        const gateView = document.getElementById("gate-view");
-        const counterView = document.getElementById("counter-view");
-        const snakeView = document.getElementById("snake-view");
-        const mainCard = document.getElementById("main-card");
-
-        quizForm.addEventListener("submit", function(e) {
-            e.preventDefault();
-            const selected = document.querySelector('input[name="relationDate"]:checked');
-
-            if (!selected) {
-                errorMsg.innerText = "Coche une réponse d'abord 🤨";
-                errorMsg.style.display = "block";
-                return;
-            }
-
-            if (selected.value === CORRECT_ANSWER) {
-                errorMsg.style.display = "none";
-                gateView.style.display = "none";
-                counterView.style.display = "block";
-                updateTimer();
-            } else {
-                errorMsg.innerText = "Tu es sérieuse ?😒";
-                errorMsg.style.display = "block";
-                mainCard.classList.remove("shake");
-                void mainCard.offsetWidth;
-                mainCard.classList.add("shake");
-            }
-        });
-
-        // Point de départ (Lundi 9 nov 2026 à 10h00), début des 4 derniers jours (Lundi 23 nov 2026 à 20h00) et arrivée (Vendredi 27 nov 2026 à 20h00)
-        const startDate = new Date("2026-11-09T10:00:00").getTime();
-        const targetDate = new Date("2026-11-27T20:00:00").getTime();
-        const fourDaysStart = targetDate - (4 * 24 * 60 * 60 * 1000);
-
-        function updateTimer() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            // Total
-            const totalDuration = targetDate - startDate;
-            const elapsed = now - startDate;
-
-            // 4 derniers jours
-            const fourDaysDuration = targetDate - fourDaysStart;
-            const fourDaysElapsed = now - fourDaysStart;
-
-            if (distance <= 0) {
-                document.getElementById("countdown").style.display = "none";
-                document.getElementById("progress-fill").style.width = "100%";
-                document.getElementById("progress-percent").innerText = "100%";
-                document.getElementById("progress-4d-fill").style.width = "100%";
-                document.getElementById("progress-4d-percent").innerText = "100%";
-                document.getElementById("status-msg").innerHTML = "🎉 <strong>C'est l'heure ! On se retrouve enfin ❤️</strong>";
-                return;
-            }
-
-            // Calcul barre 1 (totale)
-            let percentage = (elapsed / totalDuration) * 100;
-            percentage = Math.max(0, Math.min(100, percentage));
-            document.getElementById("progress-fill").style.width = percentage.toFixed(2) + "%";
-            document.getElementById("progress-percent").innerText = Math.floor(percentage) + "%";
-
-            // Calcul barre 2 (4 derniers jours)
-            let percentage4d = (fourDaysElapsed / fourDaysDuration) * 100;
-            percentage4d = Math.max(0, Math.min(100, percentage4d));
-            document.getElementById("progress-4d-fill").style.width = percentage4d.toFixed(2) + "%";
-            document.getElementById("progress-4d-percent").innerText = Math.floor(percentage4d) + "%";
-
-            // Calcul du décompte
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById("days").innerText = days;
-            document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-            document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-            document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
-        }
-
-        setInterval(updateTimer, 1000);
-
-        // --- Mini-jeu Snake ---
-        const canvas = document.getElementById("snake-canvas");
-        const ctx = canvas.getContext("2d");
-        const box = 20;
-        const gridCount = canvas.width / box;
-        let snake, food, dir, nextDir, score, snakeLoop, isGameOver;
-
-        function initSnake() {
-            snake = [
-                { x: 6 * box, y: 7 * box },
-                { x: 5 * box, y: 7 * box },
-                { x: 4 * box, y: 7 * box }
-            ];
-            dir = "RIGHT";
-            nextDir = "RIGHT";
-            score = 0;
-            isGameOver = false;
-            document.getElementById("snake-score").innerText = "0";
-            document.getElementById("snake-status").innerText = "En cours";
-            spawnFood();
-            clearInterval(snakeLoop);
-            snakeLoop = setInterval(drawSnake, 140);
-        }
-
-        function spawnFood() {
-            food = {
-                x: Math.floor(Math.random() * gridCount) * box,
-                y: Math.floor(Math.random() * gridCount) * box
-            };
-            for (let part of snake) {
-                if (part.x === food.x && part.y === food.y) {
-                    spawnFood();
-                    return;
-                }
-            }
-        }
-
-        function setDirection(newDir) {
-            if (newDir === "LEFT" && dir !== "RIGHT") nextDir = "LEFT";
-            if (newDir === "UP" && dir !== "DOWN") nextDir = "UP";
-            if (newDir === "RIGHT" && dir !== "LEFT") nextDir = "RIGHT";
-            if (newDir === "DOWN" && dir !== "UP") nextDir = "DOWN";
-        }
-
-        function drawSnake() {
-            dir = nextDir;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Nourriture (cœur
+                    <span>Les 
