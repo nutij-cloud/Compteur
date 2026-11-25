@@ -142,7 +142,7 @@
         }
         /* Compteur visuel (Barre de progression) */
         .progress-wrapper {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .progress-header {
             display: flex;
@@ -183,6 +183,93 @@
             background: rgba(0, 0, 0, 0.12);
             padding: 15px;
             border-radius: 14px;
+            margin-top: 4px;
+        }
+        /* Bouton et vue Snake */
+        .btn-snake {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+        .btn-snake:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+        .btn-snake:active {
+            transform: scale(0.98);
+        }
+        #snake-view {
+            display: none;
+        }
+        .snake-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        #snake-canvas {
+            background: rgba(0, 0, 0, 0.22);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: block;
+            margin: 0 auto;
+            touch-action: none;
+            max-width: 100%;
+        }
+        .snake-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 52px);
+            grid-template-rows: repeat(2, 46px);
+            gap: 8px;
+            justify-content: center;
+            margin-top: 14px;
+        }
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .ctrl-btn:active {
+            background: rgba(255, 255, 255, 0.45);
+        }
+        .snake-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .btn-small {
+            flex: 1;
+            padding: 11px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .btn-restart {
+            background: #ffffff;
+            color: #ff5e7e;
+        }
+        .btn-back {
+            background: rgba(0, 0, 0, 0.2);
+            color: #ffffff;
         }
     </style>
 </head>
@@ -242,6 +329,7 @@
                 </div>
             </div>
 
+            <!-- Barre 1 : Progression totale depuis le 9 nov -->
             <div class="progress-wrapper" id="progress-wrapper">
                 <div class="progress-header">
                     <span>Progression</span>
@@ -254,7 +342,49 @@
                 </div>
             </div>
 
+            <!-- Barre 2 : Progression des 4 derniers jours -->
+            <div class="progress-wrapper" id="progress-4d-wrapper">
+                <div class="progress-header">
+                    <span>Les 4 derniers jours</span>
+                    <span id="progress-4d-percent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-4d-fill">
+                        <span class="progress-heart">🔥</span>
+                    </div>
+                </div>
+            </div>
+
             <p class="message" id="status-msg">Courage, le plus gros est déjà derrière nous 😘</p>
+
+            <button type="button" class="btn-snake" id="open-snake-btn">🐍 Passer le temps (Snake)</button>
+        </div>
+
+        <!-- Mini-jeu Snake -->
+        <div id="snake-view">
+            <h1>Snake ❤️</h1>
+            <p class="subtitle" style="margin-bottom: 12px;">Attrape les cœurs pour passer le temps !</p>
+
+            <div class="snake-header">
+                <span>Score : <span id="snake-score">0</span></span>
+                <span id="snake-status">En cours</span>
+            </div>
+
+            <canvas id="snake-canvas" width="280" height="280"></canvas>
+
+            <div class="snake-controls">
+                <div></div>
+                <button type="button" class="ctrl-btn" data-dir="UP">▲</button>
+                <div></div>
+                <button type="button" class="ctrl-btn" data-dir="LEFT">◀</button>
+                <button type="button" class="ctrl-btn" data-dir="DOWN">▼</button>
+                <button type="button" class="ctrl-btn" data-dir="RIGHT">▶</button>
+            </div>
+
+            <div class="snake-actions">
+                <button type="button" class="btn-small btn-restart" id="restart-snake-btn">Rejouer</button>
+                <button type="button" class="btn-small btn-back" id="close-snake-btn">← Compteur</button>
+            </div>
         </div>
     </div>
 
@@ -264,6 +394,7 @@
         const errorMsg = document.getElementById("error-msg");
         const gateView = document.getElementById("gate-view");
         const counterView = document.getElementById("counter-view");
+        const snakeView = document.getElementById("snake-view");
         const mainCard = document.getElementById("main-card");
 
         quizForm.addEventListener("submit", function(e) {
@@ -290,29 +421,44 @@
             }
         });
 
-        // Point de départ (Lundi 9 nov 2026 à 10h00) et arrivée (Vendredi 27 nov 2026 à 20h00)
+        // Point de départ (Lundi 9 nov 2026 à 10h00), début des 4 derniers jours (Lundi 23 nov 2026 à 20h00) et arrivée (Vendredi 27 nov 2026 à 20h00)
         const startDate = new Date("2026-11-09T10:00:00").getTime();
         const targetDate = new Date("2026-11-27T20:00:00").getTime();
+        const fourDaysStart = targetDate - (4 * 24 * 60 * 60 * 1000);
 
         function updateTimer() {
             const now = new Date().getTime();
             const distance = targetDate - now;
+
+            // Total
             const totalDuration = targetDate - startDate;
             const elapsed = now - startDate;
+
+            // 4 derniers jours
+            const fourDaysDuration = targetDate - fourDaysStart;
+            const fourDaysElapsed = now - fourDaysStart;
 
             if (distance <= 0) {
                 document.getElementById("countdown").style.display = "none";
                 document.getElementById("progress-fill").style.width = "100%";
                 document.getElementById("progress-percent").innerText = "100%";
+                document.getElementById("progress-4d-fill").style.width = "100%";
+                document.getElementById("progress-4d-percent").innerText = "100%";
                 document.getElementById("status-msg").innerHTML = "🎉 <strong>C'est l'heure ! On se retrouve enfin ❤️</strong>";
                 return;
             }
 
-            // Calcul de la barre de progression
+            // Calcul barre 1 (totale)
             let percentage = (elapsed / totalDuration) * 100;
             percentage = Math.max(0, Math.min(100, percentage));
             document.getElementById("progress-fill").style.width = percentage.toFixed(2) + "%";
             document.getElementById("progress-percent").innerText = Math.floor(percentage) + "%";
+
+            // Calcul barre 2 (4 derniers jours)
+            let percentage4d = (fourDaysElapsed / fourDaysDuration) * 100;
+            percentage4d = Math.max(0, Math.min(100, percentage4d));
+            document.getElementById("progress-4d-fill").style.width = percentage4d.toFixed(2) + "%";
+            document.getElementById("progress-4d-percent").innerText = Math.floor(percentage4d) + "%";
 
             // Calcul du décompte
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -327,7 +473,53 @@
         }
 
         setInterval(updateTimer, 1000);
-    </script>
 
-</body>
-</html>
+        // --- Mini-jeu Snake ---
+        const canvas = document.getElementById("snake-canvas");
+        const ctx = canvas.getContext("2d");
+        const box = 20;
+        const gridCount = canvas.width / box;
+        let snake, food, dir, nextDir, score, snakeLoop, isGameOver;
+
+        function initSnake() {
+            snake = [
+                { x: 6 * box, y: 7 * box },
+                { x: 5 * box, y: 7 * box },
+                { x: 4 * box, y: 7 * box }
+            ];
+            dir = "RIGHT";
+            nextDir = "RIGHT";
+            score = 0;
+            isGameOver = false;
+            document.getElementById("snake-score").innerText = "0";
+            document.getElementById("snake-status").innerText = "En cours";
+            spawnFood();
+            clearInterval(snakeLoop);
+            snakeLoop = setInterval(drawSnake, 140);
+        }
+
+        function spawnFood() {
+            food = {
+                x: Math.floor(Math.random() * gridCount) * box,
+                y: Math.floor(Math.random() * gridCount) * box
+            };
+            for (let part of snake) {
+                if (part.x === food.x && part.y === food.y) {
+                    spawnFood();
+                    return;
+                }
+            }
+        }
+
+        function setDirection(newDir) {
+            if (newDir === "LEFT" && dir !== "RIGHT") nextDir = "LEFT";
+            if (newDir === "UP" && dir !== "DOWN") nextDir = "UP";
+            if (newDir === "RIGHT" && dir !== "LEFT") nextDir = "RIGHT";
+            if (newDir === "DOWN" && dir !== "UP") nextDir = "DOWN";
+        }
+
+        function drawSnake() {
+            dir = nextDir;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Nourriture (cœur
