@@ -142,7 +142,7 @@
         }
         /* Compteur visuel (Barre de progression) */
         .progress-wrapper {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .progress-header {
             display: flex;
@@ -183,93 +183,6 @@
             background: rgba(0, 0, 0, 0.12);
             padding: 15px;
             border-radius: 14px;
-            margin-top: 4px;
-        }
-        /* Bouton et vue Snake */
-        .btn-snake {
-            margin-top: 16px;
-            width: 100%;
-            padding: 12px 18px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s ease, transform 0.15s ease;
-        }
-        .btn-snake:hover {
-            background: rgba(255, 255, 255, 0.35);
-        }
-        .btn-snake:active {
-            transform: scale(0.98);
-        }
-        #snake-view {
-            display: none;
-        }
-        .snake-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
-        #snake-canvas {
-            background: rgba(0, 0, 0, 0.22);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            display: block;
-            margin: 0 auto;
-            touch-action: none;
-            max-width: 100%;
-        }
-        .snake-controls {
-            display: grid;
-            grid-template-columns: repeat(3, 52px);
-            grid-template-rows: repeat(2, 46px);
-            gap: 8px;
-            justify-content: center;
-            margin-top: 14px;
-        }
-        .ctrl-btn {
-            background: rgba(255, 255, 255, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-        }
-        .ctrl-btn:active {
-            background: rgba(255, 255, 255, 0.45);
-        }
-        .snake-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 14px;
-        }
-        .btn-small {
-            flex: 1;
-            padding: 11px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        .btn-restart {
-            background: #ffffff;
-            color: #ff5e7e;
-        }
-        .btn-back {
-            background: rgba(0, 0, 0, 0.2);
-            color: #ffffff;
         }
     </style>
 </head>
@@ -283,7 +196,7 @@
 
             <p class="quiz-question">Quelle est la date de notre relation ?</p>
 
-            <div id="quiz-form">
+            <form id="quiz-form">
                 <div class="options-list">
                     <label class="option-item">
                         <input type="radio" name="relationDate" value="29 juillet 2025">
@@ -299,8 +212,8 @@
                     </label>
                 </div>
 
-                <button type="button" id="unlock-btn" class="btn-unlock">Valider</button>
-            </div>
+                <button type="submit" class="btn-unlock">Valider</button>
+            </form>
 
             <p class="error-msg" id="error-msg">Tu es sérieuse ?😒</p>
         </div>
@@ -329,7 +242,6 @@
                 </div>
             </div>
 
-            <!-- Barre 1 : Progression totale depuis le 9 nov -->
             <div class="progress-wrapper" id="progress-wrapper">
                 <div class="progress-header">
                     <span>Progression</span>
@@ -342,7 +254,80 @@
                 </div>
             </div>
 
-            <!-- Barre 2 : Progression des 4 derniers jours -->
-            <div class="progress-wrapper" id="progress-4d-wrapper">
-                <div class="progress-header">
-                    <span>Les 
+            <p class="message" id="status-msg">Courage, le plus gros est déjà derrière nous 😘</p>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_ANSWER = "28 juillet 2024";
+        const quizForm = document.getElementById("quiz-form");
+        const errorMsg = document.getElementById("error-msg");
+        const gateView = document.getElementById("gate-view");
+        const counterView = document.getElementById("counter-view");
+        const mainCard = document.getElementById("main-card");
+
+        quizForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const selected = document.querySelector('input[name="relationDate"]:checked');
+
+            if (!selected) {
+                errorMsg.innerText = "Coche une réponse d'abord 🤨";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            if (selected.value === CORRECT_ANSWER) {
+                errorMsg.style.display = "none";
+                gateView.style.display = "none";
+                counterView.style.display = "block";
+                updateTimer();
+            } else {
+                errorMsg.innerText = "Tu es sérieuse ?😒";
+                errorMsg.style.display = "block";
+                mainCard.classList.remove("shake");
+                void mainCard.offsetWidth;
+                mainCard.classList.add("shake");
+            }
+        });
+
+        // Point de départ (Lundi 9 nov 2026 à 10h00) et arrivée (Vendredi 27 nov 2026 à 20h00)
+        const startDate = new Date("2026-11-09T10:00:00").getTime();
+        const targetDate = new Date("2026-11-27T20:00:00").getTime();
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            const totalDuration = targetDate - startDate;
+            const elapsed = now - startDate;
+
+            if (distance <= 0) {
+                document.getElementById("countdown").style.display = "none";
+                document.getElementById("progress-fill").style.width = "100%";
+                document.getElementById("progress-percent").innerText = "100%";
+                document.getElementById("status-msg").innerHTML = "🎉 <strong>C'est l'heure ! On se retrouve enfin ❤️</strong>";
+                return;
+            }
+
+            // Calcul de la barre de progression
+            let percentage = (elapsed / totalDuration) * 100;
+            percentage = Math.max(0, Math.min(100, percentage));
+            document.getElementById("progress-fill").style.width = percentage.toFixed(2) + "%";
+            document.getElementById("progress-percent").innerText = Math.floor(percentage) + "%";
+
+            // Calcul du décompte
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = days;
+            document.getElementById("hours").innerText = String(hours).padStart(2, '0');
+            document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
+            document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateTimer, 1000);
+    </script>
+
+</body>
+</html>
